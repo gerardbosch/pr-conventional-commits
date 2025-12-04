@@ -178,11 +178,20 @@ For this configuration, the following PR title is valid: `feat: PROJECT-12345 ad
 
 ### Contributing
 
-After modifying the code, please run:
-1. `npm test` to run test 
-2. `npm run prepare` to build the distribution files(`dist` folder with `index.js.map` file). Commit it together with the changes in `index.js` file.
+After modifying the code, please:
+1. Run `npm test` to run tests and ensure your changes work correctly
+1. Open a PR
 
-You can verify your changes by editing the title of your PR. The PR uses an action located in the root directory of the branch associated with your PR. 
+#### Optional: Local Docker Testing
+```bash
+# Test the Docker build locally (optional)
+docker build -t pr-conventional-commits-test .
+
+# Run tests inside container (optional)
+docker run --rm pr-conventional-commits-test npm test
+```
+
+You can verify your changes by editing the title of your PR. The PR uses an action located in the root directory of the branch associated with your PR, and GitHub will automatically build the Docker container with your changes. 
 
 ## Author
 
