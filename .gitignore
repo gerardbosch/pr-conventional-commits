@@ -44,3 +44,6 @@ out/
 
 ### node ###
 node_modules/
+
+# Distribution files
+dist/
