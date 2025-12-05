@@ -1,10 +1,7 @@
 FROM node:24-alpine
 
-WORKDIR /app
-
-# Copy package files first for better Docker layer caching
+# Copy package files and install dependencies in root
 COPY package*.json ./
-
 RUN npm ci --only=production
 
 # Copy source code
