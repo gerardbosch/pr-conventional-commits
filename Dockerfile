@@ -8,4 +8,4 @@ RUN npm ci --only=production
 COPY . .
 
 # Run the action
-ENTRYPOINT ["node", "index.js"]
+ENTRYPOINT ["node", "/index.js"]
