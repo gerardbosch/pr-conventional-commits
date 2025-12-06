@@ -7,10 +7,13 @@ const githubApi = require('./githubapi');
  * Main function to run the whole process.
  */
 async function run() {
+
+    const pr = context.payload.pull_request;
+    const titleRegex = getTitleRegex();
+
     const commitDetail = await checkConventionalCommits();
     await checkScope(commitDetail);
-    await checkTicketNumber(commitDetail);
-    const pr = context.payload.pull_request;
+    await checkTextMatches(titleRegex, pr.title); // validates against the whole title, including the leading commit type, e.g. `fix: `
     await applyLabel(pr, commitDetail);
     await applyScopeLabel(pr, commitDetail)
 }
@@ -74,7 +77,7 @@ async function checkScope(commitDetail) {
     if (!commitDetail) {
         return;
     }
-    
+
     const scopeTypes = getScopeTypes();
     if (scopeTypes === null) {
         return;
@@ -103,20 +106,27 @@ function getScopeTypes() {
     }
 }
 
+// TODO Remove this function once `ticket_key_regex` is phased out
+function getTitleRegex() {
+    const titleRegex = getInput('title_regex');
+    const deprecatedTitleRegex = getInput('ticket_key_regex');
+    if (deprecatedTitleRegex) {
+        console.warn('⚠️  DEPRECATION WARNING: "ticket_key_regex" parameter is deprecated. Please use "title_regex" instead.');
+    }
+    return titleRegex || deprecatedTitleRegex || null;
+}
+
 /**
- * Check the ticket number based on the PR title and a provided regex.
+ * Validate text against the provided regex pattern.
+ * @param {string} regex - The regex pattern to validate against
+ * @param {string} text - The text to validate
  */
-async function checkTicketNumber() {
-    const ticketKeyRegex = getInput('ticket_key_regex');
-    if (ticketKeyRegex) {
-        const pr = context.payload.pull_request;
-        const taskNumberMatch = pr.title.match(new RegExp(ticketKeyRegex));
-        const taskNumber = taskNumberMatch ? taskNumberMatch[0] : '';
-        if (!taskNumber) {
-            setFailed(`Invalid or missing task number: '${taskNumber}'. Must match: ${ticketKeyRegex}`);
-        }
+async function checkTextMatches(regex, text) {
+    if (regex && !text.match(new RegExp(regex))) {
+        setFailed(`The text is not compliant with the specified regex...\n  🢒 Actual text: "${text}"\n  🢒 Must match: "${regex}"`);
     }
 }
+
 /**
  * Apply labels to the pull request based on the details of the commit and any custom labels provided.
  * @param {Object} pr The pull request object.
@@ -226,7 +236,7 @@ module.exports = {
     run,
     checkConventionalCommits,
     checkScope,
-    checkTicketNumber,
+    checkTextMatches,
     applyLabel,
     updateLabels
 };
