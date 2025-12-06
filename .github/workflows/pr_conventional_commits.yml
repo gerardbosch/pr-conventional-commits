@@ -17,7 +17,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: PR Conventional Commit Validation
-        uses: ./ # Uses an action in the root directory of the repository
+        uses: gerardbosch/pr-conventional-commits@fix/dockerfile
         with:
           task_types: '[
               "feat",
